@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'angu-cooking';
+  loadedFeature:string = 'recipe';
+
+  onNavigate(feature:string){
+    this.loadedFeature = feature;
+  }
+
 }
