@@ -34,9 +34,9 @@ export class ShoppingListService {
         this.ingredientsChanged.next(this.ingredients.slice());
     }
 
-    removeIngredient(name:string){
-        const filtered = this.ingredients.filter(item => item.name !== name);
-        this.ingredientsChanged.next(filtered);
+    deleteIngredient(index:number){
+        this.ingredients.splice(index, 1);
+        this.ingredientsChanged.next(this.ingredients.slice());
     }
     
 }
