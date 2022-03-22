@@ -7,7 +7,8 @@ export class ShoppingListService {
 
     private ingredients: Ingredient[] = [
         new Ingredient('Apples', 5),
-        new Ingredient('Tomatoes', 10)
+        new Ingredient('Tomatoes', 10),
+        new Ingredient('Potatoes', 15)
     ];
 
     getIngredients() {
@@ -31,6 +32,11 @@ export class ShoppingListService {
     updateIngredient(index:number, newIngredient:Ingredient){
         this.ingredients[index] = newIngredient;
         this.ingredientsChanged.next(this.ingredients.slice());
+    }
+
+    removeIngredient(name:string){
+        const filtered = this.ingredients.filter(item => item.name !== name);
+        this.ingredientsChanged.next(filtered);
     }
     
 }
