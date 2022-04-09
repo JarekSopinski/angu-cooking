@@ -33,6 +33,12 @@ export class RecipeService {
 
     constructor(private slService: ShoppingListService) {}
 
+    setRecipes(recipes: Recipe[]) {
+        // Ovewrite recipes with recipes fetched from Firebase
+        this.recipes = recipes;
+        this.recipesChanged.next(this.recipes.slice());
+    }
+
     getRecipes() {
         return this.recipes.slice(); // slice to prevent direct access
     }
