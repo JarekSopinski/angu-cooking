@@ -10,6 +10,7 @@ export class RecipeService {
 
     recipesChanged = new Subject<Recipe[]>();
 
+    /*
     private recipes:Recipe[] = [
         new Recipe(
             'A Recipe for Meat',
@@ -30,11 +31,13 @@ export class RecipeService {
             ]
         )
     ];
+    */
+
+    private recipes:Recipe[] = [];
 
     constructor(private slService: ShoppingListService) {}
 
     setRecipes(recipes: Recipe[]) {
-        // Ovewrite recipes with recipes fetched from Firebase
         this.recipes = recipes;
         this.recipesChanged.next(this.recipes.slice());
     }

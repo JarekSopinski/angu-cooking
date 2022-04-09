@@ -1,5 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { map } from 'rxjs/operators';
+
 import { Recipe } from "../recipes/recipe.model";
 import { RecipeService } from "../recipes/recipe.service";
 
@@ -26,7 +28,19 @@ export class DataStorageService {
     fetchRecipes(){
         this.http.get<Recipe[]>(
             `${this.apiUrl}/recipes.json`
-        ).subscribe(
+        )
+        .pipe(
+            map(recipes => { // map from rxjs!
+                return recipes.map(recipe => { // native map function!
+                    // If Recipe has no ingredients, set it to an empty array to prevent errors.
+                    return {
+                        ...recipe, // spread other properties
+                        ingredients: recipe.ingredients ? recipe.ingredients : [] // has any ingredients?
+                    }
+                });
+            })
+        )
+        .subscribe(
             recipes => this.recipeService.setRecipes(recipes)
         )
     }
