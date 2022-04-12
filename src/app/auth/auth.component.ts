@@ -11,6 +11,7 @@ export class AuthComponent {
 
     isLoginMode:boolean = true;
     isLoading:boolean = false;
+    error:string;
     submittedEmail:string;
     submittedPassword:string;
 
@@ -48,6 +49,7 @@ export class AuthComponent {
             },
             error => {
                 console.log(error);
+                this.error = 'An error occurred!';
                 this.isLoading = false;
             }
         )
