@@ -10,6 +10,7 @@ import { AuthService } from "./auth.service";
 export class AuthComponent {
 
     isLoginMode:boolean = true;
+    isLoading:boolean = false;
     submittedEmail:string;
     submittedPassword:string;
 
@@ -29,6 +30,7 @@ export class AuthComponent {
         this.submittedEmail = form.value.email;
         this.submittedPassword = form.value.password;
 
+        this.isLoading = true;
         this.isLoginMode ? this.handleLogin() : this.handleSignup();
 
         form.reset();
@@ -42,9 +44,11 @@ export class AuthComponent {
         this.authService.signup(this.submittedEmail, this.submittedPassword).subscribe(
             resData => {
                 console.log(resData);
+                this.isLoading = false;
             },
             error => {
                 console.log(error);
+                this.isLoading = false;
             }
         )
     }
