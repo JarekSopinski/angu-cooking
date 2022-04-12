@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 interface AuthResponseData {
+    kind:string;
     idToken:string;
     email:string;
     refreshToken:string;
@@ -24,18 +25,12 @@ export class AuthService {
         password:string
     ) {
 
-        let signupParams = new HttpParams();
-        signupParams.append('key', this.apiKey);
-
         return this.http.post<AuthResponseData>(
-            this.apiEndpointSignup,
+            `${this.apiEndpointSignup}?key=${this.apiKey}`,
             {
                 email: email,
                 password: password,
                 returnSecureToken: true
-            },
-            {
-                params: signupParams
             }
         )
 
