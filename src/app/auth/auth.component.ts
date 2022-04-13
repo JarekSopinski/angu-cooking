@@ -1,7 +1,8 @@
 import { Component } from "@angular/core";
 import { NgForm } from "@angular/forms";
+import { Observable } from "rxjs";
 
-import { AuthService } from "./auth.service";
+import { AuthService, AuthResponseData } from "./auth.service";
 
 @Component({
     selector: 'app-auth',
@@ -31,18 +32,18 @@ export class AuthComponent {
         this.submittedEmail = form.value.email;
         this.submittedPassword = form.value.password;
 
+        let authObservable:Observable<AuthResponseData>;
+
         this.isLoading = true;
-        this.isLoginMode ? this.handleLogin() : this.handleSignup();
+        authObservable = ( 
+            this.isLoginMode ? 
+            this.authService.login(this.submittedEmail, this.submittedPassword) 
+            : 
+            this.authService.signup(this.submittedEmail, this.submittedPassword)
+        );
 
-        form.reset();
-    }
-
-    handleLogin() {
-
-    }
-
-    handleSignup() {
-        this.authService.signup(this.submittedEmail, this.submittedPassword).subscribe(
+        authObservable.subscribe(
+            // Instead of running two subscriptions, we create this local sub. for auth http post requests.
             resData => {
                 console.log(resData);
                 this.isLoading = false;
@@ -52,6 +53,8 @@ export class AuthComponent {
                 this.isLoading = false;
             }
         )
+
+        form.reset();
     }
 
 }
