@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { catchError, tap } from "rxjs/operators";
-import { Subject, throwError } from "rxjs";
+import { BehaviorSubject, throwError } from "rxjs";
 import { User } from "./user.model";
 
 export interface AuthResponseData {
@@ -17,7 +17,12 @@ export interface AuthResponseData {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-    user = new Subject<User>();
+    /**
+     * Opposing to Subject, BehaviourSubject also gives subscribers immediate access
+     * to the previously emitted value, even if they haven't subscribed when that value was emitted.
+     * So we can get access to current user, even if subscribing after that user was logged.
+     */
+    user = new BehaviorSubject<User>(null);
 
     apiKey:string = 'AIzaSyCk39ojjZvuNfanOqtmFEMSIVJaZn-kkJ0';
     apiEndpointSignup:string = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp';
