@@ -28,25 +28,10 @@ export class DataStorageService {
     }
 
     fetchRecipes(){
-        
-        return this.authService.user.pipe(
-            take(1), // With rxjs operator take() we take only one value from that sub. and then automaticly unsubscribe.
-            exhaustMap(user => {
-                /**
-                 * exhaustMap waits for the first observable to complete, which will happen after we took the latest user
-                 * Then it gives us that user, then we get the data from the previous observable
-                 * and now we return a new observable in there, which will then replace previous observable in the
-                 * entire observable chain.
-                 * So basicly we merge two observables.
-                 * Than .map() and .tap() can be added as next steps in the same chain.
-                 */
-                 return this.http.get<Recipe[]>(
-                    `${this.apiUrl}/recipes.json`,
-                    {
-                        params: new HttpParams().set('auth', user.token)
-                    }
-                )
-            }),
+
+        return this.http.get<Recipe[]>(
+            `${this.apiUrl}/recipes.json`
+        ).pipe(
             map(recipes => { // map from rxjs!
                 return recipes.map(recipe => { // native map function!
                     // If Recipe has no ingredients, set it to an empty array to prevent errors.
@@ -60,7 +45,7 @@ export class DataStorageService {
                 this.recipeService.setRecipes(recipes);
             })
         );
-
+        
     }
 
 }
