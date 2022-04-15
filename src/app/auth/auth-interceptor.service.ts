@@ -7,7 +7,7 @@ import { AuthService } from "./auth.service";
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
-    // Intercepts all requests and adds Token
+    // Intercepts all requests (except login and signup) and adds Token
 
     constructor(
         private authService: AuthService
