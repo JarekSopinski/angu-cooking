@@ -1,9 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, ComponentFactoryResolver } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 
 import { AuthService, AuthResponseData } from "./auth.service";
+import { AlertComponent } from '../shared/alert/alert.component';
 
 @Component({
     selector: 'app-auth',
@@ -19,7 +20,8 @@ export class AuthComponent {
 
     constructor(
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private componentFactoryResolver: ComponentFactoryResolver
     ) {}
 
     onSwitchMode() {
@@ -53,6 +55,7 @@ export class AuthComponent {
             },
             errorMessage => {
                 this.error = errorMessage;
+                this.showErrorAlert(errorMessage);
                 this.isLoading = false;
             }
         )
@@ -61,7 +64,14 @@ export class AuthComponent {
     }
 
     onHandleError() {
-        this.error = null; // by resetting error, we remove condition for alert box, therefore alert box will be closed
+        // used to handle alert box in ngIf-based approach
+        // by resetting error, we remove condition for alert box, therefore alert box will be closed
+        this.error = null;
+    }
+
+    private showErrorAlert(message:string) {
+        // used to handle alert box in programmatic-component-creation approach
+        const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
     }
 
 }
