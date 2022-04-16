@@ -60,4 +60,8 @@ export class AuthComponent {
         form.reset();
     }
 
+    onHandleError() {
+        this.error = null; // by resetting error, we remove condition for alert box, therefore alert box will be closed
+    }
+
 }
