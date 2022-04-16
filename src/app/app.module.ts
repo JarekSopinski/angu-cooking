@@ -60,6 +60,10 @@ import { PlaceholderDirective } from './shared/placeholder/placeholder.directive
       multi: true
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    // not required since v9; components that will need to be created without selector or route
+    AlertComponent
+  ]
 })
 export class AppModule { }
