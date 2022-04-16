@@ -25,6 +25,7 @@ export class AuthService {
      * So we can get access to current user, even if subscribing after that user was logged.
      */
     user = new BehaviorSubject<User>(null);
+    private tokenExpirationTimeout:any;
 
     apiKey:string = 'AIzaSyCk39ojjZvuNfanOqtmFEMSIVJaZn-kkJ0';
     apiEndpointSignup:string = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp';
@@ -76,6 +77,9 @@ export class AuthService {
     logout() {
         this.user.next(null);
         this.router.navigate(['/auth']);
+        localStorage.removeItem('userData');
+        this.tokenExpirationTimeout && clearTimeout(this.tokenExpirationTimeout);
+        this.tokenExpirationTimeout = null;
     }
 
     autoLogin() {
@@ -99,8 +103,17 @@ export class AuthService {
 
         if (loadedUser.token) {
             this.user.next(loadedUser);
+            const expirationDuration:number = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
+            this.autoLogout(expirationDuration);
         }
 
+    }
+
+    autoLogout(expirationDuration:number) {
+        // Logout when token expires
+        this.tokenExpirationTimeout = setTimeout(() => {
+            this.logout();
+        }, expirationDuration);
     }
 
     private handleAuthentication(email:string, userId:string, token:string, expiresIn:number) {
@@ -117,6 +130,7 @@ export class AuthService {
             expirationDate
         );
         this.user.next(user);
+        this.autoLogout(expiresIn * 1000); // convert miliseconds to seconds
         localStorage.setItem('userData', JSON.stringify(user));
     }
 
