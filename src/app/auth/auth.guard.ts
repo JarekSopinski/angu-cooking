@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { Observable } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { map, take } from "rxjs/operators";
 
 import { AuthService } from "./auth.service";
 
@@ -17,15 +17,14 @@ export class AuthGuard implements CanActivate {
     canActivate(
         route: ActivatedRouteSnapshot, 
         state: RouterStateSnapshot
-    ): boolean | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
+    ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
 
         return this.authService.user.pipe( // can't be returned directly because returns object, not boolean
+            take(1), // always take latest user value and then unsubscribe
             map(user => {
-                return !!user; // transformed to return boolean
-            }),
-            // older solution with tap
-            tap(isAuth => {
-                if(!isAuth) { this.router.navigate['/auth']; }
+                const isAuth = !!user;
+                if (isAuth) { return true; }
+                return this.router.createUrlTree(['/auth']); // redirect to auth if not logged-in
             })
         )
         
