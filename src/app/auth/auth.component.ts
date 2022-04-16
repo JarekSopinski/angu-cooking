@@ -1,10 +1,11 @@
-import { Component, ComponentFactoryResolver } from "@angular/core";
+import { Component, ComponentFactoryResolver, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 
 import { AuthService, AuthResponseData } from "./auth.service";
 import { AlertComponent } from '../shared/alert/alert.component';
+import { PlaceholderDirective } from "../shared/placeholder/placeholder.directive";
 
 @Component({
     selector: 'app-auth',
@@ -17,6 +18,7 @@ export class AuthComponent {
     error:string;
     submittedEmail:string;
     submittedPassword:string;
+    @ViewChild(PlaceholderDirective, { static: false }) alertHost: PlaceholderDirective;
 
     constructor(
         private authService: AuthService,
@@ -72,6 +74,10 @@ export class AuthComponent {
     private showErrorAlert(message:string) {
         // used to handle alert box in programmatic-component-creation approach
         const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
+        const hostViewContainerRef = this.alertHost.viewContainerRef;
+        hostViewContainerRef.clear();
+
+        hostViewContainerRef.createComponent(alertCmpFactory); // creates new component in that place
     }
 
 }
