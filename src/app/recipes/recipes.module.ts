@@ -25,15 +25,8 @@ import { RecipeEditComponent } from "./recipe-edit/recipe-edit.component";
         CommonModule, // unlocks things like ngif, ngfor
         ReactiveFormsModule,
         RecipesRoutingModule
-    ],
-    exports: [
-        RecipesComponent,
-        RecipeListComponent,
-        RecipeDetailComponent,
-        RecipeItemComponent,
-        RecipeStartComponent,
-        RecipeEditComponent
     ]
+    // if we use module's component only internally, in its own routing module, we don't have to export them
 })
 export class RecipesModule {
 
