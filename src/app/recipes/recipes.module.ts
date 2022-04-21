@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from "@angular/forms";
+import { SharedModule } from "../shared/shared.module";
 
 import { RecipesRoutingModule } from "./recipes-routing.module";
 import { RecipesComponent } from "./recipes.component";
@@ -22,9 +22,9 @@ import { RecipeEditComponent } from "./recipe-edit/recipe-edit.component";
     ],
     imports: [
         RouterModule,
-        CommonModule, // unlocks things like ngif, ngfor
         ReactiveFormsModule,
-        RecipesRoutingModule
+        RecipesRoutingModule,
+        SharedModule
     ]
     // if we use module's component only internally, in its own routing module, we don't have to export them
 })
