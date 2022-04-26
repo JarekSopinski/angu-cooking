@@ -10,7 +10,7 @@ import { RecipesComponent } from "./recipes.component";
 
 const routes:Routes = [
     {
-        path: 'recipes', 
+        path: '', // with lazy load should be empty - we're already redirected here from app-routing.module
         component: RecipesComponent, 
         canActivate: [AuthGuard],
         children: [
