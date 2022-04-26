@@ -10,7 +10,17 @@ const appRoutes: Routes = [
   */
   { path: 'recipes', loadChildren: () => import('./recipes/recipes.module').then(
     module => module.RecipesModule // RecipesModule must not be duplicated in app.module!
-  )}
+  )},
+  {
+    path: 'shopping-list', loadChildren: () => import('./shopping-list/shopping-list.module').then(
+      module => module.ShoppingListModule
+    )
+  },
+  {
+    path: 'auth', loadChildren: () => import('./auth/auth.module').then(
+      module => module.AuthModule
+    )
+  }
 ];
 
 @NgModule({
