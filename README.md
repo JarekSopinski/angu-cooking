@@ -1,5 +1,9 @@
 # AnguCooking
 
+Project from [Angular - The Complete Guide 2022 Edition](https://www.udemy.com/course/the-complete-guide-to-angular-2) on Udemy.
+
+Deployed at: https://angu-cooking.web.app/
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.1.1.
 
 ## Development server
