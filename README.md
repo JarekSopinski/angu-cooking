@@ -4,6 +4,27 @@ Project from [Angular - The Complete Guide 2022 Edition](https://www.udemy.com/c
 
 Deployed at: https://angu-cooking.web.app/
 
+### API Credentials
+
+Firebase API key is stored in src/environments, that is excluded from git. For the app to work, environment files should be created like this:
+
+#### environment.prod.ts
+
+    export const environment = {
+      production: true,
+      firebaseAPIKey: ''
+    };
+
+
+#### environment.ts
+
+    export const environment = {
+      production: false,
+      firebaseAPIKey: ''
+    };
+
+### Angular CLI
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.1.1.
 
 ## Development server
