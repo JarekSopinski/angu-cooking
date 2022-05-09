@@ -6,6 +6,9 @@ export const ADD_INGREDIENT = 'ADD_INGREDIENT'; // save action's name to variabl
 export class AddIngredient implements Action {
 
     readonly type = ADD_INGREDIENT;
-    payload: Ingredient;
+
+    constructor(
+        public payload: Ingredient // has to be public to access payload from reducer
+        ) {}
 
 }
