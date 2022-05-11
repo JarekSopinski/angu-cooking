@@ -23,12 +23,7 @@ export interface AuthResponseData {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-    /**
-     * Opposing to Subject, BehaviourSubject also gives subscribers immediate access
-     * to the previously emitted value, even if they haven't subscribed when that value was emitted.
-     * So we can get access to current user, even if subscribing after that user was logged.
-     */
-    user = new BehaviorSubject<User>(null);
+    // user = new BehaviorSubject<User>(null);
     private tokenExpirationTimeout:any;
 
     apiKey:string = environment.firebaseAPIKey;
