@@ -8,7 +8,7 @@ import { Store } from "@ngrx/store";
 
 import { User } from "./user.model";
 import * as fromApp from '../store/app.reducer';
-import * as AuthActions from './store/auth.actions'
+import * as AuthActions from './store/auth.actions';
 
 export interface AuthResponseData {
     kind:string;
