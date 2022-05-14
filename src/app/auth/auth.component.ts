@@ -8,7 +8,7 @@ import { AuthService, AuthResponseData } from "./auth.service";
 import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from "../shared/placeholder/placeholder.directive";
 import * as fromApp from '../store/app.reducer';
-import * as authActions from './store/auth.actions';
+import * as AuthActions from './store/auth.actions';
 
 @Component({
     selector: 'app-auth',
@@ -22,7 +22,9 @@ export class AuthComponent implements OnInit, OnDestroy {
     submittedEmail:string;
     submittedPassword:string;
     @ViewChild(PlaceholderDirective, { static: false }) alertHost: PlaceholderDirective;
+
     private closeAlertSub:Subscription;
+    private storeSub:Subscription;
 
     constructor(
         private authService: AuthService,
@@ -32,10 +34,9 @@ export class AuthComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        this.store.select('auth').subscribe(authState => {
+        this.storeSub = this.store.select('auth').subscribe(authState => {
             this.isLoading = authState.loading;
             this.error = authState.authError;
-            this.error && this.showErrorAlert(this.error);
         });
     }
 
@@ -53,14 +54,14 @@ export class AuthComponent implements OnInit, OnDestroy {
 
         if (this.isLoginMode){
             this.store.dispatch(
-                new authActions.LoginStart({ 
+                new AuthActions.LoginStart({ 
                     email: this.submittedEmail, 
                     password: this.submittedPassword
                 })
             )
         } else {
             this.store.dispatch(
-                new authActions.SignupStart({
+                new AuthActions.SignupStart({
                     email: this.submittedEmail,
                     password: this.submittedPassword
                 })
@@ -71,28 +72,12 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
 
     onHandleError() {
-        // used to handle alert box in ngIf-based approach
-        // by resetting error, we remove condition for alert box, therefore alert box will be closed
-        this.error = null;
-    }
-
-    private showErrorAlert(message:string) {
-        // used to handle alert box in programmatic-component-creation approach
-        const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
-        const hostViewContainerRef = this.alertHost.viewContainerRef;
-        hostViewContainerRef.clear();
-
-        const componentRef = hostViewContainerRef.createComponent(alertCmpFactory); // creates new component in that place
-
-        componentRef.instance.message = message;
-        this.closeAlertSub = componentRef.instance.close.subscribe(() => {
-            this.closeAlertSub.unsubscribe();
-            hostViewContainerRef.clear(); // removes component by clearing all content of its parent
-        });
+        this.store.dispatch( new AuthActions.ClearError() );
     }
 
     ngOnDestroy(): void {
         this.closeAlertSub && this.closeAlertSub.unsubscribe();
+        this.storeSub && this.storeSub.unsubscribe();
     }
 
 }
