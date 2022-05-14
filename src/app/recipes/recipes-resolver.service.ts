@@ -5,8 +5,8 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
-import { take } from "rxjs/operators";
+import { Observable, of } from "rxjs";
+import { map, switchMap, take } from "rxjs/operators";
 import { Actions, ofType } from "@ngrx/effects";
 
 import { DataStorageService } from "../shared/data-storage.service";
@@ -31,10 +31,27 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
         : 
         Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
 
-            this.store.dispatch( new RecipeActions.FetchRecipes() );
-            return this.actions$.pipe(
-                ofType(RecipeActions.SET_RECIPES),
-                take(1) // we're only intereseted in this event once
+            return this.store.select('recipes').pipe(
+                take(1),
+                map(
+                    recipesState => {
+                        return recipesState.recipes;
+                    }
+                ),
+                switchMap(
+                    recipes => {
+                        // do not send any request if we already heave recipes
+                        if (recipes.length === 0){
+                            this.store.dispatch( new RecipeActions.FetchRecipes() );
+                            return this.actions$.pipe(
+                                ofType(RecipeActions.SET_RECIPES),
+                                take(1) // we're only intereseted in this event once
+                            );
+                        } else {
+                            return of(recipes);
+                        }
+                    }
+                )
             );
                 
     }
