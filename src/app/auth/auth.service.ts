@@ -36,48 +36,9 @@ export class AuthService {
         private store:Store<fromApp.AppState>
     ) {}
 
-    signup(email:string, password:string) {
-        return this.http.post<AuthResponseData>(
-            `${this.apiEndpointSignup}?key=${this.apiKey}`,
-            {
-                email: email,
-                password: password,
-                returnSecureToken: true
-            }
-        ).pipe(
-            catchError(this.handleError),
-            tap(resData => this.handleAuthentication(
-                resData.email, 
-                resData.localId,
-                resData.idToken, 
-                +resData.expiresIn
-            ))
-        );
-    }
-
-    login(email:string, password:string) {
-        return this.http.post<AuthResponseData>(
-            `${this.apiEndpointSignin}?key=${this.apiKey}`,
-            {
-                email: email,
-                password: password,
-                returnSecureToken: true
-            }
-        ).pipe(
-            catchError(this.handleError),
-            tap(resData => this.handleAuthentication(
-                resData.email, 
-                resData.localId,
-                resData.idToken, 
-                +resData.expiresIn
-            ))
-        );
-    }
-
     logout() {
         // this.user.next(null);
         this.store.dispatch( new AuthActions.Logout() );
-        this.router.navigate(['/auth']);
         localStorage.removeItem('userData');
         this.tokenExpirationTimeout && clearTimeout(this.tokenExpirationTimeout);
         this.tokenExpirationTimeout = null;
