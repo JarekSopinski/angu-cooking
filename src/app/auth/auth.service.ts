@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Store } from "@ngrx/store";
 
-import { User } from "./user.model";
 import * as fromApp from '../store/app.reducer';
 import * as AuthActions from './store/auth.actions';
 
@@ -24,11 +23,17 @@ export class AuthService {
         private store:Store<fromApp.AppState>
     ) {}
 
-    autoLogout(expirationDuration:number) {
-        // Logout when token expires
+    setLogoutTimeout(expirationDuration:number) {
         this.tokenExpirationTimeout = setTimeout(() => {
-            // this.logout();
+            this.store.dispatch( new AuthActions.Logout() );
         }, expirationDuration);
+    }
+
+    clearLogoutTimeout() {
+        if (this.tokenExpirationTimeout){
+            clearTimeout(this.tokenExpirationTimeout);
+            this.tokenExpirationTimeout = null;
+        }
     }
 
 }

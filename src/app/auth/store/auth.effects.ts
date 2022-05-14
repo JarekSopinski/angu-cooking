@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 
 import * as AuthActions from './auth.actions';
 import { User } from "../user.model";
+import { AuthService } from "../auth.service";
 
 export interface AuthResponseData {
     kind:string;
@@ -77,6 +78,11 @@ export class AuthEffects {
                         returnSecureToken: true
                     }
                 ).pipe(
+                    tap(
+                        resData => {
+                            this.authService.setLogoutTimeout( +resData.expiresIn * 1000 );
+                        }
+                    ),
                     map(
                         resData => {
                             return handleAuthentication(
@@ -110,6 +116,11 @@ export class AuthEffects {
                         returnSecureToken: true
                     }
                 ).pipe( // add another observable on inner observable to handle errors
+                    tap(
+                        resData => {
+                            this.authService.setLogoutTimeout( +resData.expiresIn * 1000 );
+                        }
+                    ),
                     map(
                         resData => {
                             return handleAuthentication(
@@ -132,7 +143,7 @@ export class AuthEffects {
 
     @Effect({ dispatch: false }) // this effect will not yield a dispatchable action at the end
     authRedirect = this.actions$.pipe(
-        ofType(AuthActions.AUTHENTICATE_SUCCESS, AuthActions.LOGOUT),
+        ofType(AuthActions.AUTHENTICATE_SUCCESS),
         tap(
             () => {
                 this.router.navigate(['/']);
@@ -167,15 +178,14 @@ export class AuthEffects {
         
                 // check if token is still valid
                 if (loadedUser.token) {
-                    // this.user.next(loadedUser);
+                    const expirationDuration:number = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
+                    this.authService.setLogoutTimeout(expirationDuration);
                     return new AuthActions.AuthenticateSuccess({
                         email: loadedUser.email,
                         userId: loadedUser.id,
                         token: loadedUser.token,
                         expirationDate: new Date(userData._tokenExpirationDate)
                     });
-                    // const expirationDuration:number = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-                    // this.autoLogout(expirationDuration);
                 }
 
                 // if there is no token, return dummy action to prevent error
@@ -190,7 +200,9 @@ export class AuthEffects {
         ofType(AuthActions.LOGOUT),
         tap(
             () => {
+                this.authService.clearLogoutTimeout();
                 localStorage.removeItem('userData');
+                this.router.navigate(['/auth']);
             }
         )
     );
@@ -198,6 +210,7 @@ export class AuthEffects {
     constructor (
         private actions$: Actions,
         private http: HttpClient,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) {}
 }
