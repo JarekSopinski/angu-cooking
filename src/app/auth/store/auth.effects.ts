@@ -1,5 +1,5 @@
 /**
- * Execute some code (in this case API connection) as a side effect, when an action is dispatched.
+ * Handle API calls and errors as side effects of dispatching Auth Actions.
  */
 
 import { Injectable } from "@angular/core";
@@ -22,12 +22,77 @@ export interface AuthResponseData {
     registered?:boolean;
 }
 
+const handleAuthentication = (
+    expiresIn: number,
+    email: string,
+    userId: string,
+    token: string
+    ) => {
+    const expirationDate:Date = new Date(
+        new Date().getTime() + expiresIn * 1000
+    );
+    return new AuthActions.AuthenticateSuccess({
+        email: email,
+        userId: userId,
+        token: token,
+        expirationDate: expirationDate
+    });
+};
+
+const handleError = (errorRes: any) => {
+    let errorMessage:string = 'An unknown error occurred!';
+    if(!errorRes.error || !errorRes.error.error){
+        // of() operator creates new observable
+        return of( new AuthActions.AuthenticateFail(errorMessage) );
+    }
+    switch(errorRes.error.error.message) {
+        case 'EMAIL_EXISTS': errorMessage = 'This email exists already!'; break;
+        case 'EMAIL_NOT_FOUND': errorMessage = 'This email does not exist!'; break;
+        case 'INVALID_PASSWORD': errorMessage = 'This password is not correct!'; break;
+    }
+
+    return of( new AuthActions.AuthenticateFail(errorMessage) );
+};
+
 @Injectable()
 export class AuthEffects {
 
     apiKey:string = environment.firebaseAPIKey;
     apiEndpointSignup:string = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp';
     apiEndpointSignin:string = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
+
+    @Effect()
+    authSignup = this.actions$.pipe(
+        ofType(AuthActions.SIGNUP_START),
+        switchMap(
+            (signupAction: AuthActions.SignupStart) => {
+                return this.http.post<AuthResponseData>(
+                    `${this.apiEndpointSignup}?key=${this.apiKey}`,
+                    {
+                        email: signupAction.payload.email,
+                        password: signupAction.payload.password,
+                        returnSecureToken: true
+                    }
+                ).pipe(
+                    map(
+                        resData => {
+                            return handleAuthentication(
+                                +resData.expiresIn, 
+                                resData.email, 
+                                resData.localId, 
+                                resData.idToken
+                            );
+                        }
+                    ),
+                    catchError(
+                        errorRes => {
+                            return handleError(errorRes);
+                        }
+                    )
+                )
+            }
+        )
+    );
 
     @Effect()
     authLogin = this.actions$.pipe(
@@ -44,34 +109,18 @@ export class AuthEffects {
                 ).pipe( // add another observable on inner observable to handle errors
                     map(
                         resData => {
-                            const expirationDate:Date = new Date(
-                                new Date().getTime() + +resData.expiresIn * 1000
+                            return handleAuthentication(
+                                +resData.expiresIn, 
+                                resData.email, 
+                                resData.localId, 
+                                resData.idToken
                             );
-                            return new AuthActions.AuthenticateSuccess({
-                                email: resData.email,
-                                userId: resData.localId,
-                                token: resData.idToken,
-                                expirationDate: expirationDate
-                            });
                         }
                     ),
                     catchError(
                         errorRes => {
-
-                            let errorMessage:string = 'An unknown error occurred!';
-                            if(!errorRes.error || !errorRes.error.error){
-                                // of() operator creates new observable
-                                return of( new AuthActions.AuthenticateFail(errorMessage) );
-                            }
-                            switch(errorRes.error.error.message) {
-                                case 'EMAIL_EXISTS': errorMessage = 'This email exists already!'; break;
-                                case 'EMAIL_NOT_FOUND': errorMessage = 'This email does not exist!'; break;
-                                case 'INVALID_PASSWORD': errorMessage = 'This password is not correct!'; break;
-                            }
-
-                            return of( new AuthActions.AuthenticateFail(errorMessage) );
-
-                        } // error func. end
+                            return handleError(errorRes);
+                        }
                     )
                 );
             }

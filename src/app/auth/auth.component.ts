@@ -51,12 +51,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.submittedEmail = form.value.email;
         this.submittedPassword = form.value.password;
 
-        let authObservable:Observable<AuthResponseData>;
-
-        this.isLoading = true;
-
         if (this.isLoginMode){
-            // authObservable = this.authService.login(this.submittedEmail, this.submittedPassword);
             this.store.dispatch(
                 new authActions.LoginStart({ 
                     email: this.submittedEmail, 
@@ -64,22 +59,13 @@ export class AuthComponent implements OnInit, OnDestroy {
                 })
             )
         } else {
-            authObservable = this.authService.signup(this.submittedEmail, this.submittedPassword);
+            this.store.dispatch(
+                new authActions.SignupStart({
+                    email: this.submittedEmail,
+                    password: this.submittedPassword
+                })
+            )
         }
-
-        // authObservable.subscribe(
-        //     // Instead of running two subscriptions, we create this local sub. for auth http post requests.
-        //     resData => {
-        //         console.log(resData);
-        //         this.isLoading = false;
-        //         this.router.navigate(['/recipes']);
-        //     },
-        //     errorMessage => {
-        //         this.error = errorMessage;
-        //         this.showErrorAlert(errorMessage);
-        //         this.isLoading = false;
-        //     }
-        // )
 
         form.reset();
     }
