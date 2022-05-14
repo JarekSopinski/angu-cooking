@@ -5,10 +5,12 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Actions, Effect, ofType } from "@ngrx/effects";
-import { map, switchMap } from "rxjs/operators";
+import { Store } from "@ngrx/store";
+import { map, switchMap, withLatestFrom } from "rxjs/operators";
 
 import { Recipe } from "../recipe.model";
 import * as RecipesActions from './recipe.actions';
+import * as fromApp from '../../store/app.reducer';
 
 @Injectable()
 export class RecipeEffects {
@@ -39,9 +41,28 @@ export class RecipeEffects {
         })
     );
 
+    // save recepies on the server
+    @Effect({ dispatch: false })
+    storeRecipes = this.actions$.pipe(
+        ofType(RecipesActions.STORE_RECIPES),
+        withLatestFrom(
+            // merge a value from another observable into this observable - used to get recipes
+            this.store.select('recipes')
+        ),
+        switchMap(
+            ([actionData, recipesState]) => { // recipesState added by withLatestFrom
+                return this.http.put(
+                    `${this.apiUrl}/recipes.json`,
+                    recipesState.recipes
+                )
+            }
+        )
+    );
+
     constructor(
         private actions$: Actions,
-        private http: HttpClient
+        private http: HttpClient,
+        private store: Store<fromApp.AppState>
     ) {}
 
 }
